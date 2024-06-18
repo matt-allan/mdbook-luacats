@@ -1,8 +1,8 @@
 use clap::{Arg, Command};
 use mdbook_luacats::{
-    luals::{clean_docs, generate_docs}, print::MarkdownPrinter
+    clean_docs, generate_docs, print::MarkdownPrinter
 };
-use std::{error::Error, io::{self, Write}, path::PathBuf};
+use std::{io::{self, Write}, path::PathBuf};
 
 pub fn make_app() -> Command {
     Command::new("luacats-to-markdown")
@@ -10,7 +10,7 @@ pub fn make_app() -> Command {
         .arg(Arg::new("path").required(true).help("Path to the lua definitions"))
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> anyhow::Result<()> {
     let matches = make_app().get_matches();
 
     let definitions_path = matches

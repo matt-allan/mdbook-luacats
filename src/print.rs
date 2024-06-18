@@ -8,7 +8,6 @@ pub struct MarkdownPrinter {
     options: MarkdownOptions,
 }
 
-
 #[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Serialize, Deserialize, Default)]
 pub struct MarkdownOptions {
     /// Starting heading level
@@ -42,9 +41,12 @@ impl MarkdownPrinter {
             write!(&mut str, "{}\n\n", desc)?;
         }
 
-        for def in node.defines.iter() {
-            write!(&mut str, "```lua\n{}\n```\n\n", def.extends.view)?;
-        }
+        // TODO
+        // for def in node.defines.iter() {
+            // for extend in def.extends.iter() {
+            //     write!(&mut str, "```lua\n{}\n```\n\n", extend.view)?;
+            // }
+        // }
 
         return Ok(str)
     }
