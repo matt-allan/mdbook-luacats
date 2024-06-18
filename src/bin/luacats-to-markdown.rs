@@ -1,5 +1,5 @@
-use clap::{Arg, ArgMatches, Command};
-use luacats_doc::{
+use clap::{Arg, Command};
+use mdbook_luacats::{
     luals::{clean_docs, generate_docs}, print::MarkdownPrinter
 };
 use std::{error::Error, io::{self, Write}, path::PathBuf};

@@ -1020,22 +1020,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "90ed8c1e510134f979dbc4f070f87d4313098b704861a105fe34231c70a3901c"
 
 [[package]]
-name = "luacats-doc"
-version = "0.1.0"
-dependencies = [
- "clap",
- "itertools",
- "mdbook",
- "pulldown-cmark 0.11.0",
- "pulldown-cmark-to-cmark",
- "semver",
- "serde",
- "serde_json",
- "tempdir",
- "thiserror",
-]
-
-[[package]]
 name = "mac"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1095,6 +1079,22 @@ dependencies = [
  "topological-sort",
  "walkdir",
  "warp",
+]
+
+[[package]]
+name = "mdbook-luacats"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "itertools",
+ "mdbook",
+ "pulldown-cmark 0.11.0",
+ "pulldown-cmark-to-cmark",
+ "semver",
+ "serde",
+ "serde_json",
+ "tempdir",
+ "thiserror",
 ]
 
 [[package]]

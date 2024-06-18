@@ -1,5 +1,5 @@
 use std::error::Error;
-use luacats_doc::{types::Definition, print::MarkdownPrinter};
+use mdbook_luacats::{types::Definition, print::MarkdownPrinter};
 
 #[test]
 fn print_definition() -> Result<(), Box<dyn Error>> {
