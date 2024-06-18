@@ -1,5 +1,5 @@
 use clap::{Arg, ArgMatches, Command};
-use luacats_doc::preprocessor::LuaCats;
+use luacats_doc::preprocess::LuaCats;
 use mdbook::errors::Error;
 use mdbook::preprocess::{CmdPreprocessor, Preprocessor};
 use semver::{Version, VersionReq};

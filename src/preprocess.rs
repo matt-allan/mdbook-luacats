@@ -2,7 +2,7 @@ use mdbook::book::Book;
 use mdbook::errors::Error;
 use mdbook::preprocess::{Preprocessor, PreprocessorContext};
 
-/// A mdbook preprocessor that generates LuaCATS API docs
+/// A mdbook preprocessor that generates LuaCATS API docs.
 pub struct LuaCats;
 
 impl LuaCats {
