@@ -21,11 +21,15 @@ fn main() {
 
     let preprocessor = LuaCats::new();
 
-    if let Some(sub_args) = matches.subcommand_matches("supports") {
-        handle_supports(&preprocessor, sub_args);
-    } else if let Err(e) = handle_preprocessing(&preprocessor) {
-        eprintln!("{}", e);
-        process::exit(1);
+    match matches.subcommand() {
+        Some(("supports", subargs)) => handle_supports(&preprocessor, subargs),
+        Some((cmd, _)) => eprintln!("unknown subcommand {}", cmd),
+        None => {
+            if let Err(e) = handle_preprocessing(&preprocessor) {
+                eprintln!("{}", e);
+                process::exit(1);
+            }
+        }
     }
 }
 

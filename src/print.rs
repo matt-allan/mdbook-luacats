@@ -1,7 +1,7 @@
 use std::fmt::{self, Write};
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use crate::types::Definition;
+use crate::lua_cats::Definition;
 
 #[derive(Debug, Default)]
 pub struct MarkdownPrinter {
