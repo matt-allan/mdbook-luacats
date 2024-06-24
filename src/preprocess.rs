@@ -4,7 +4,7 @@ use url::Url;
 use std::path::PathBuf;
 use toml::value::Table;
 
-use crate::luals::generate_docs;
+use crate::{luals::generate_docs, workspace::Workspace};
 
 
 /// Configuration for the preprocessor.
@@ -68,15 +68,13 @@ impl Preprocessor for LuaCats {
             .canonicalize()?;
 
         let docs = generate_docs(&root_path)?;
+        let workspace = Workspace::new(root_path);
 
         let part_title = config.part_title.unwrap_or("API Reference".into());
+        
+        // for file in workspace.iter() {
 
-        // // Group by file / depth
-        // // Generate a table of contents
-
-        // // book.for_each_mut(|section: &mut BookItem| {
-        // //     // 
-        // // });
+        // }
 
         Ok(book)
     }
@@ -86,40 +84,6 @@ impl Preprocessor for LuaCats {
     }
 }
 
-pub fn tree_sort(paths: Vec<Url>) -> anyhow::Result<Vec<Url>> {
-    let tree = Vec::with_capacity(paths.len());
-
-    // ?
-
-    Ok(tree)
-}
-
 #[cfg(test)]
 mod test {
-    use url::Url;
-    use crate::preprocess::tree_sort;
-
-    #[test]
-    fn basic_tree_sort() -> anyhow::Result<()> {
-        let urls: Vec<Url> = vec![
-            "file:///my/definitions/path/renoise.lua",
-            "file:///my/definitions/path/standard.lua",
-            "file:///my/definitions/path/renoise/midi.lua",
-            "file:///my/definitions/path/bit.lua",
-        ].iter().map(|s| Url::parse(s).unwrap()).collect();
-
-        let want: Vec<&str> = vec![
-            "file:///my/definitions/path/bit.lua",
-            "file:///my/definitions/path/renoise.lua",
-            "file:///my/definitions/path/renoise/midi.lua",
-            "file:///my/definitions/path/standard.lua",
-        ];
-
-        let actual_urls = tree_sort(urls)?;
-        let actual: Vec<String> = actual_urls.iter().map(|url| url.to_string()).collect();
-
-        assert_eq!(want, actual);
-
-        Ok(())
-    }
 }
