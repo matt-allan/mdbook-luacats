@@ -1,6 +1,7 @@
 use std::{fs::{self}, path::PathBuf, process::Command};
+use anyhow::{anyhow, Error};
 use tempdir::TempDir;
-use crate::{error::Error, lua_cats::Definition};
+use crate::lua_cats::Definition;
 
 /// Spawn the lua-language-server to generate docs.
 pub fn generate_docs(definitions_path: &PathBuf) -> Result<Vec<Definition>,Error> { 
@@ -17,7 +18,11 @@ pub fn generate_docs(definitions_path: &PathBuf) -> Result<Vec<Definition>,Error
         .output()?;
 
     if !output.status.success() {
-        return Err(Error::Exec)
+        let err = match output.status.code() {
+            Some(code) => anyhow!("LuaLS process exited with status code {}", code),
+            None => anyhow!("LuaLS process terminated by signal"),
+        };
+        return Err(err)
     }
 
     let json_doc_path = tmp_dir.path().join("doc.json");
