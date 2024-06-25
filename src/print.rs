@@ -41,12 +41,11 @@ impl MarkdownPrinter {
             write!(&mut str, "{}\n\n", desc)?;
         }
 
-        // TODO
-        // for def in node.defines.iter() {
-            // for extend in def.extends.iter() {
-            //     write!(&mut str, "```lua\n{}\n```\n\n", extend.view)?;
-            // }
-        // }
+        for def in node.defines.iter() {
+            for extend in def.extends.iter() {
+                write!(&mut str, "```lua\n{}\n```\n\n", extend.view)?;
+            }
+        }
 
         return Ok(str)
     }
