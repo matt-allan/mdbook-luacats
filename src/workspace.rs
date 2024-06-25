@@ -4,6 +4,7 @@ use std::{
 
 use anyhow::{anyhow, Ok};
 use itertools::Itertools;
+use serde::Serialize;
 use url::Url;
 
 use crate::lua_cats::Definition;
@@ -87,7 +88,7 @@ impl Workspace {
 
 
 /// Lua file containing only LuaCats meta.
-#[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord, Default)]
+#[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord, Default, Serialize)]
 pub struct MetaFile {
     /// The file path, relative to the workspace root.
     pub path: PathBuf,

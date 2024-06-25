@@ -1,11 +1,17 @@
+use handlebars::{no_escape, Handlebars};
 use mdbook::{book::{Book, Chapter, SectionNumber}, preprocess::{Preprocessor, PreprocessorContext}, BookItem};
 use mdbook::errors::Error as MdBookError;
+use rust_embed::Embed;
 use std::{env, path::PathBuf};
 use toml::value::Table;
 use log::*;
 
 use crate::{luals::generate_docs, print::{MarkdownOptions, MarkdownPrinter}, workspace::{MetaFile, Workspace}};
 
+#[derive(Embed)]
+#[folder = "templates"]
+#[include = "*.hbs"]
+struct Assets;
 
 /// Configuration for the preprocessor.
 #[derive(Debug, Default)]
@@ -86,9 +92,14 @@ impl Preprocessor for LuaCats {
 
         let part_title = config.part_title.unwrap_or("API Reference".into());
         book.push_item(BookItem::PartTitle(part_title));
+
+        let mut hbs = Handlebars::new();
+        hbs.set_strict_mode(true);
+        hbs.register_embed_templates_with_extension::<Assets>(".hbs")?;
+        hbs.register_escape_fn(no_escape);
         
         for (index, file) in workspace.files.iter().enumerate() {
-            let chapter = build_chapter(file, index, None)?;
+            let chapter = build_chapter(&hbs, file, index, None)?;
             book.push_item(BookItem::Chapter(chapter));
          }
 
@@ -100,10 +111,9 @@ impl Preprocessor for LuaCats {
     }
 }
 
-fn build_chapter(file: &MetaFile, index: usize, parent: Option<&Chapter>) -> anyhow::Result<Chapter> {
-    let name = file.file_stem(); // todo: get from first def if possible
-    // todo: replace with hbars
-    let content = MarkdownPrinter::new(MarkdownOptions::default()).print(&file.definitions)?;
+fn build_chapter(hbs: &Handlebars, file: &MetaFile, index: usize, parent: Option<&Chapter>) -> anyhow::Result<Chapter> {
+    let name = file.file_stem(); // maybe preferrable to use the first class name here?
+    let content = hbs.render("meta_file", &file)?;
     let md_path = file.path.with_extension("md");
     let number = match parent {
         Some(parent) => {
@@ -132,13 +142,14 @@ fn build_chapter(file: &MetaFile, index: usize, parent: Option<&Chapter>) -> any
         parent_names,
     };
 
-    let mut sub_items = Vec::with_capacity(file.sub_files.len());
-    for (sub_index, sub_file) in file.sub_files.iter().enumerate() {
-        let sub_item = build_chapter(sub_file, sub_index, Some(&chapter))?;
-        sub_items.push(BookItem::Chapter(sub_item));
-    }
-
-    chapter.sub_items = sub_items;
+    chapter.sub_items = file.sub_files
+        .iter()
+        .enumerate()
+        .map(|(sub_index, sub_file)| -> anyhow::Result<BookItem> {
+            let chapter = build_chapter(hbs, sub_file, sub_index, Some(&chapter))?;
+            Ok(BookItem::Chapter(chapter))
+        })
+        .collect::<anyhow::Result<Vec<BookItem>>>()?;
 
     Ok(chapter)
 }

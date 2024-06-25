@@ -9,12 +9,14 @@ edition = "2021"
 anyhow = { version = "1.0.86", features = ["backtrace"] }
 clap = "4.5.7"
 env_logger = "0.11.3"
+handlebars = { version = "5.1.2", features = ["dir_source", "heck", "rust-embed"] }
 indextree = "4.6.1"
 itertools = "0.13.0"
 log = "0.4.21"
 mdbook = "0.4.40"
 pulldown-cmark = "0.11.0"
 pulldown-cmark-to-cmark = "15.0.1"
+rust-embed = { version = "8.4.0", features = ["include-exclude"] }
 semver = "1.0.23"
 serde = { version = "1.0.203", features = ["derive"] }
 serde_json = "1.0.117"
