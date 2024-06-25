@@ -959,8 +959,10 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
+ "env_logger",
  "indextree",
  "itertools",
+ "log",
  "mdbook",
  "pulldown-cmark 0.11.0",
  "pulldown-cmark-to-cmark",

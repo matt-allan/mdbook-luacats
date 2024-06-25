@@ -17,6 +17,8 @@ pub fn make_app() -> Command {
 }
 
 fn main() {
+    env_logger::init();
+    
     let matches = make_app().get_matches();
 
     let preprocessor = LuaCats::new();

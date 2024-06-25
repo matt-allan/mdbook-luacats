@@ -1,13 +1,9 @@
 use std::{
-    borrow::BorrowMut,
-    collections::{HashMap, HashSet},
-    fmt::Write,
-    path::PathBuf,
+    collections::HashMap, path::PathBuf
 };
 
 use anyhow::{anyhow, Ok};
 use itertools::Itertools;
-use mdbook::book::Link;
 use url::Url;
 
 use crate::lua_cats::Definition;
@@ -16,9 +12,9 @@ use crate::lua_cats::Definition;
 #[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord, Default)]
 pub struct Workspace {
     /// The absolute path to the root folder of the workspace.
-    root: PathBuf,
+    pub root: PathBuf,
     /// The workspace's meta files.
-    files: Vec<MetaFile>,
+    pub files: Vec<MetaFile>,
 }
 
 impl Workspace {
@@ -31,7 +27,7 @@ impl Workspace {
 
     /// Load the workspace from the given doc definitions.
     pub fn load(&mut self, docs: Vec<Definition>) -> anyhow::Result<()> {
-        let mut defs_by_file: HashMap<PathBuf, Vec<Definition>> = HashMap::new();
+        let mut defs_by_file: HashMap<PathBuf, Vec<(u64, Definition)>> = HashMap::new();
 
         for definition in docs.into_iter() {
             for define in definition.defines.iter() {
@@ -42,7 +38,7 @@ impl Workspace {
                 defs_by_file
                     .entry(file_path)
                     .or_default()
-                    .push(definition.clone());
+                    .push((define.start, definition.clone()));
             }
         }
 
@@ -89,17 +85,18 @@ impl Workspace {
     }
 }
 
-/// A Lua file containing only LuaCats meta.
+
+/// Lua file containing only LuaCats meta.
 #[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord, Default)]
 pub struct MetaFile {
     /// The file path, relative to the workspace root.
-    path: PathBuf,
+    pub path: PathBuf,
     /// Parsed definitions from this file.
-    definitions: Vec<Definition>,
+    pub definitions: Vec<Definition>,
     /// The depth in the directory tree.
-    depth: usize,
+    pub depth: usize,
     /// Files considered below this one in the heirarchy.
-    sub_files: Vec<MetaFile>,
+    pub sub_files: Vec<MetaFile>,
 }
 
 impl MetaFile {
@@ -145,11 +142,17 @@ impl MetaFile {
     }
 }
 
-impl From<(PathBuf, Vec<Definition>)> for MetaFile {
-    fn from(value: (PathBuf, Vec<Definition>)) -> Self {
+impl From<(PathBuf, Vec<(u64, Definition)>)> for MetaFile {
+    fn from(value: (PathBuf, Vec<(u64, Definition)>)) -> Self {
         let (path, definitions) = value;
 
         let depth = path.components().count() - 1;
+
+        let definitions = definitions
+            .into_iter()
+            .sorted_by(|(a, _), (b, _)| a.cmp(b))
+            .map(|(_, def)| def)
+            .collect();
 
         MetaFile {
             path,
@@ -167,6 +170,22 @@ mod test {
 
     use super::*;
 
+    fn test_definition<U: Into<String>>(file: U) -> Definition {
+        Definition {
+        desc: None,
+        rawdesc: None,
+        name: "test".into(),
+        lua_type: DefinitionType::Nil,
+        defines: vec![Define {
+            start: 0,
+            finish: 10,
+            lua_type: DefinitionType::Nil,
+            file: file.into(),
+            extends: Vec::new(),
+        }],
+        }
+    }
+
     #[test]
     fn load_workspace() -> anyhow::Result<()> {
         let file_urls = vec![
@@ -178,26 +197,12 @@ mod test {
 
         let docs: Vec<Definition> = file_urls
             .iter()
-            .map(|&file| Definition {
-                desc: None,
-                rawdesc: None,
-                name: "foo".into(),
-                lua_type: DefinitionType::Nil,
-                defines: vec![Define {
-                    start: 0,
-                    finish: 10,
-                    lua_type: DefinitionType::Nil,
-                    file: file.into(),
-                    extends: Vec::new(),
-                }],
-            })
+            .map(|&file| test_definition(file))
             .collect();
 
         let mut ws = Workspace::new("/my/definitions/path");
 
         ws.load(docs)?;
-
-        println!("Workspace: {:#?}", ws);
 
         let root_files: Vec<String> = ws.files.iter()
             .map(|f| f.file_name())
