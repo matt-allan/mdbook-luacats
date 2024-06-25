@@ -183,6 +183,7 @@ mod test {
         rawdesc: None,
         name: "test".into(),
         lua_type: DefinitionType::Nil,
+        fields: Vec::new(),
         defines: vec![Define {
             start: 0,
             finish: 10,
