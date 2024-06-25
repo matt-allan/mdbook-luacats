@@ -1,0 +1,15 @@
+```lua
+{{view}}
+```
+{{#if args}}
+### Arguments { .h-args }
+{{#each args}}
+- {{name}} `{{view}}`{{#if rawdesc}}: {{rawdesc}}{{/if}}
+{{/each}}
+{{/if}}
+{{#if returns}}
+### Returns { .h-returns }
+{{#each returns}}
+- {{#if name}}{{name}} {{/if}}`{{view}}`{{#if rawdesc}}: {{rawdesc}}{{/if}}
+{{/each}}
+{{/if}}

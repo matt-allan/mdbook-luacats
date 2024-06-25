@@ -28,6 +28,7 @@ impl Workspace {
 
     /// Load the workspace from the given doc definitions.
     pub fn load(&mut self, docs: Vec<Definition>) -> anyhow::Result<()> {
+        // Index definitions by their file in the order they were defined
         let mut defs_by_file: HashMap<PathBuf, Vec<(u64, Definition)>> = HashMap::new();
 
         for definition in docs.into_iter() {
@@ -48,13 +49,13 @@ impl Workspace {
             .into_iter()
             .filter_map(|(path, definitions)| {
                 path.strip_prefix(root)
-                    .ok()
+                    .ok() // discard definitions from outside the root (system definitions)
                     .map(|path| MetaFile::from((path.to_owned(), definitions)))
             })
             .sorted_by(|a, b| {
                 a.depth
-                    .cmp(&b.depth)
-                    .then(a.file_name().cmp(&b.file_name()))
+                    .cmp(&b.depth) // first by depth so we add parents before children
+                    .then(a.file_name().cmp(&b.file_name())) // ...then alphabetically
             })
             .collect();
 
@@ -68,11 +69,13 @@ impl Workspace {
     fn add_file(&mut self, file: MetaFile) {
         let depth = file.depth;
 
+        // Top level files can be added directly to the workspace
         if depth == 0 {
             self.files.push(file);
             return;
         }
 
+        // Otherwise we have to find the file's parent
         for other_file in self.files.iter_mut() {
             if other_file.depth == depth - 1 && other_file.file_stem() == file.directory_name().unwrap()
             {
@@ -81,13 +84,16 @@ impl Workspace {
             }
         }
 
-        // fallback to adding a new root entry
+        // It's possible for a file to not have a direct parent on disk, but that
+        // doesn't work with the mdbook chapter heirarchy so we just fallback to
+        // adding those files to the root.
+        log::warn!("No parent found for {}", file.file_name());
         self.files.push(file);
     }
 }
 
 
-/// Lua file containing only LuaCats meta.
+/// A Lua file containing only LuaCats meta.
 #[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord, Default, Serialize)]
 pub struct MetaFile {
     /// The file path, relative to the workspace root.

@@ -11,7 +11,8 @@ pub struct Definition {
     #[serde(rename = "type")]
     pub lua_type: DefinitionType,
     pub defines: Vec<Define>,
-    // TODO: missing "fields"?
+    #[serde(default)]
+    pub fields: Vec<Field>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -63,6 +64,21 @@ pub struct Define {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct Field {
+    pub name: String,
+    pub desc: Option<String>,
+    pub rawdesc: Option<String>,
+    pub start: u64,
+    pub finish: u64,
+    #[serde(rename = "type")]
+    pub lua_type: DefinitionType,
+    pub file: String,
+    #[serde(default)]
+    #[serde(deserialize_with = "deserialize_extends")]
+    pub extends: Vec<Extend>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub struct Extend {
     pub start: u64,
@@ -73,9 +89,11 @@ pub struct Extend {
     pub desc: Option<String>,
     pub rawdesc: Option<String>,
     /// Only present for functions (type = "function") with args
-    pub args: Option<Vec<FuncArg>>,
+    #[serde(default)]
+    pub args: Vec<FuncArg>,
     /// Only present for functions (type = "function") with returns
-    pub returns: Option<Vec<FuncReturn>>,
+    #[serde(default)]
+    pub returns: Vec<FuncReturn>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord, Serialize, Deserialize)]
@@ -85,6 +103,8 @@ pub struct FuncArg {
     pub name: Option<String>,
     #[serde(rename = "type")]
     pub lua_type: DefinitionType,
+    pub desc: Option<String>,
+    pub rawdesc: Option<String>,
     pub view: String,
     pub start: u64,
     pub finish: u64,
@@ -97,6 +117,8 @@ pub struct FuncReturn {
     #[serde(rename = "type")]
     pub lua_type: DefinitionType,
     pub view: String,
+    pub desc: Option<String>,
+    pub rawdesc: Option<String>,
 }
 
 /// Implement the value of "extends", which may be missing, null, an array

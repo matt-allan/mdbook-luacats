@@ -1,11 +1,11 @@
-# {{name}}
+## {{name}}
 
-{{desc}}
+{{rawdesc}}
 
 {{#each defines}}
-{{#each extends}}
-```lua
-{{view}}
-```
+{{> define}}
 {{/each}}
+
+{{#each fields}}
+{{> field}}
 {{/each}}

@@ -112,7 +112,7 @@ impl Preprocessor for LuaCats {
 }
 
 fn build_chapter(hbs: &Handlebars, file: &MetaFile, index: usize, parent: Option<&Chapter>) -> anyhow::Result<Chapter> {
-    let name = file.file_stem(); // maybe preferrable to use the first class name here?
+    let name = file.file_stem(); 
     let content = hbs.render("meta_file", &file)?;
     let md_path = file.path.with_extension("md");
     let number = match parent {
