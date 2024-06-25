@@ -6,7 +6,7 @@ use std::{env, path::PathBuf};
 use toml::value::Table;
 use log::*;
 
-use crate::{luals::generate_docs, print::{MarkdownOptions, MarkdownPrinter}, workspace::{MetaFile, Workspace}};
+use crate::{luals::generate_docs, workspace::{MetaFile, Workspace}};
 
 #[derive(Embed)]
 #[folder = "templates"]
